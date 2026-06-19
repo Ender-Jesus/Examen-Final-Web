@@ -1,16 +1,7 @@
 package co.edu.ufps.pokemon.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDate;
 
 @Entity
@@ -22,21 +13,21 @@ import java.time.LocalDate;
 public class PokemonCaptura {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
-    @MapsId
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "pokemon_id", nullable = false)
     private Pokemon pokemon;
 
     @ManyToOne
     @JoinColumn(name = "entrenador_id", nullable = false)
     private Entrenador entrenador;
 
-    @Column(name = "nombre", length = 50, nullable = false)
+    @Column(name = "nombre", length = 50)
     private String nombre;
 
-    @Column(name = "apellido", length = 50, nullable = false)
+    @Column(name = "apellido", length = 50)
     private String apellido;
 
     @Column(name = "fecha_nacimiento")

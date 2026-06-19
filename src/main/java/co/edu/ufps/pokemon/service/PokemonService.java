@@ -1,5 +1,7 @@
 package co.edu.ufps.pokemon.service;
 
+import co.edu.ufps.pokemon.entity.PokemonCaptura;
+import co.edu.ufps.pokemon.repository.PokemonRepository;
 import co.edu.ufps.pokemon.dto.PokemonRequestDTO;
 import co.edu.ufps.pokemon.dto.PokemonResponseDTO;
 import co.edu.ufps.pokemon.dto.TipoPokemonResponseDTO;
@@ -75,3 +77,37 @@ public class PokemonService {
                 .build();
     }
 }
+
+public Object agregarPokemon(String uuidEntrenador, String uuidPokemon) {
+        // Verificar si ya está asociado
+        boolean yaExiste = pokemonCapturaRepository
+                .existsByEntrenadorUuidAndPokemonUuid(uuidEntrenador, uuidPokemon);
+
+        if (yaExiste) {
+            return java.util.Map.of(
+                "error", "true",
+                "message", "pokemon ya esta registrado al entrenador"
+            );
+        }
+
+        // Buscar entrenador y pokemon
+        Entrenador entrenador = entrenadorRepository.findByUuid(uuidEntrenador)
+                .orElseThrow(() -> new RuntimeException("Entrenador no encontrado"));
+
+        Pokemon pokemon = pokemonRepository.findByUuid(uuidPokemon)
+                .orElseThrow(() -> new RuntimeException("Pokemon no encontrado"));
+
+        // Crear la captura
+        PokemonCaptura captura = PokemonCaptura.builder()
+                .pokemon(pokemon)
+                .entrenador(entrenador)
+                .nombre(entrenador.getEmail())
+                .apellido("-")
+                .fechaVinculacion(java.time.LocalDate.now())
+                .build();
+
+        pokemonCapturaRepository.save(captura);
+
+        // Retornar lista actualizada
+        return listarPokemons(uuidEntrenador);
+    }
