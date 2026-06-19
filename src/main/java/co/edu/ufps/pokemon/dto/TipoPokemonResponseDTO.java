@@ -1,0 +1,16 @@
+package co.edu.ufps.pokemon.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TipoPokemonResponseDTO {
+    private String id;
+    private String descripcion;
+    private String uuid;
+}
