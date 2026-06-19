@@ -4,13 +4,17 @@ import co.edu.ufps.pokemon.dto.PokemonResponseDTO;
 import co.edu.ufps.pokemon.dto.TipoPokemonResponseDTO;
 import co.edu.ufps.pokemon.entity.Entrenador;
 import co.edu.ufps.pokemon.entity.Pokemon;
+import co.edu.ufps.pokemon.entity.PokemonCaptura;
 import co.edu.ufps.pokemon.repository.EntrenadorRepository;
 import co.edu.ufps.pokemon.repository.PokemonCapturaRepository;
+import co.edu.ufps.pokemon.repository.PokemonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,8 +24,8 @@ public class EntrenadorService {
 
     @Autowired
     private EntrenadorRepository entrenadorRepository;
-	
-	@Autowired
+
+    @Autowired
     private PokemonRepository pokemonRepository;
 
     @Autowired
@@ -40,6 +44,36 @@ public class EntrenadorService {
         return pokemons.stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Object agregarPokemon(String uuidEntrenador, String uuidPokemon) {
+        boolean yaExiste = pokemonCapturaRepository
+                .existsByEntrenadorUuidAndPokemonUuid(uuidEntrenador, uuidPokemon);
+
+        if (yaExiste) {
+            return Map.of(
+                "error", "true",
+                "message", "pokemon ya esta registrado al entrenador"
+            );
+        }
+
+        Entrenador entrenador = entrenadorRepository.findByUuid(uuidEntrenador)
+                .orElseThrow(() -> new RuntimeException("Entrenador no encontrado"));
+
+        Pokemon pokemon = pokemonRepository.findByUuid(uuidPokemon)
+                .orElseThrow(() -> new RuntimeException("Pokemon no encontrado"));
+
+        PokemonCaptura captura = PokemonCaptura.builder()
+                .pokemon(pokemon)
+                .entrenador(entrenador)
+                .nombre(entrenador.getEmail())
+                .apellido("-")
+                .fechaVinculacion(LocalDate.now())
+                .build();
+
+        pokemonCapturaRepository.save(captura);
+
+        return listarPokemons(uuidEntrenador);
     }
 
     private PokemonResponseDTO toResponseDTO(Pokemon pokemon) {
@@ -67,4 +101,3 @@ public class EntrenadorService {
                 .build();
     }
 }
-
